@@ -1,5 +1,5 @@
-import { MutationEvent } from './events';
-import { JUSEntry } from './jus';
+import { MutationEvent, MutationPayload } from './events';
+import { JUSEntry, PartialJUSEntry } from './jus';
 
 export type PipelineStatus =
   | 'idle'
@@ -9,39 +9,36 @@ export type PipelineStatus =
   | 'awaiting_audit'
   | 'failed';
 
-export type ViolationType =
-  | 'opcode_uniqueness'
-  | 'serialization_limit'
-  | 'type_consistency'
-  | 'gas_safety'
-  | 'bounce_logic'
-  | 'reentrancy'
-  | 'internal_error'
-  | 'parser_error'
-  | 'timeout';
-
 export interface IssueCard {
-  id: string;
-  projectId: string;
-  violationType: ViolationType;
-  severity: 'warn' | 'block';
-  message: string;
-  details?: any;
+  violationType: 'deterministic' | 'heuristic' | 'internal_error';
+  constraintId: string;
+  humanReadableMessage: string;
+  affectedField?: string;
+  suggestedCorrection?: string;
 }
 
 export interface ResolutionOutput {
-  tactDelta: { path: string; content: string }[];
-  jusEntry: JUSEntry | null;
-  isPartial: boolean;
-  reason?: string;
+  tactDelta: { path: string; delta: string };
+  jusEntry: JUSEntry;
+}
+
+export interface PartialResolution {
+  tactDelta?: { path: string; delta: string };
+  partialJusEntry: PartialJUSEntry;
 }
 
 export interface PipelineInput {
   projectId: string;
   userId: string;
-  command?: string;
-  manualResolution?: ResolutionOutput;
-  auditSessionId?: string;
+  type: 'declarative' | 'direct';
+  content: string; // The natural language intent or direct code
+  safetyModeEnabled?: boolean;
+  auditSessionId?: string; // For Resumption from Stage 2-B
+}
+
+export interface ResolutionAuditRequest {
+  auditSessionId: string;
+  partialResolution: PartialResolution;
 }
 
 export type PipelineResult =
@@ -49,16 +46,25 @@ export type PipelineResult =
   | { status: 'rejected'; issueCard: IssueCard }
   | { status: 'awaiting_audit'; auditSessionId: string };
 
-export interface PipelineContext {
-  id: string;
-  projectId: string;
-  userId: string;
-  status: PipelineStatus;
-  input: PipelineInput;
-  prompt?: string;
-  resolution?: ResolutionOutput;
-  auditSessionId?: string;
-  event?: MutationEvent;
+export interface StageResult<T> {
+  status: 'success' | 'failure' | 'branch';
+  output?: T;
   issueCard?: IssueCard;
-  timestamp: number;
+  auditRequest?: ResolutionAuditRequest;
+}
+
+export interface PipelineContext {
+  readonly id: string;
+  readonly projectId: string;
+  readonly userId: string;
+  readonly input: PipelineInput;
+  readonly safetyModeEnabled: boolean;
+  
+  // Accumulated state
+  resolution?: ResolutionOutput;
+  issueCard?: IssueCard;
+  event?: MutationEvent;
+  auditSessionId?: string;
+  
+  status: PipelineStatus;
 }
