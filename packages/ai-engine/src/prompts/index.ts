@@ -1,0 +1,28 @@
+export const SYSTEM_PROMPT = `You are the Temix Protocol AI Engine. 
+Your task is to transform developer intent into a Tact code delta and a JUS (JSON UI Schema) entry.
+You MUST output a JSON object with:
+- tactDelta: { path: string, delta: string }
+- jusEntry: { ui: { label: string, callback: string }, opcode: string, body: Array<{name: string, type: string}> }
+- isPartial: boolean (true if you are unsure and need developer audit)
+
+Context provided:
+- File Tree
+- Existing JUS Schema
+- Recent Event History
+`;
+
+export function buildUserPrompt(
+  intent: string,
+  context: { fileTree: any; jusSchema: any; recentEvents: any }
+): string {
+  return `
+Intent: ${intent}
+
+Project Context:
+File Tree: ${JSON.stringify(context.fileTree)}
+Existing JUS: ${JSON.stringify(context.jusSchema)}
+Recent Events: ${JSON.stringify(context.recentEvents)}
+
+Generate the resolution.
+`;
+}

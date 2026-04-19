@@ -1,1 +1,12 @@
-{"name": "@temix/tact-compiler", "version": "0.1.0", "main": "src/index.ts"}
+{
+  "name": "@temix/tact-compiler",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@temix/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.0.0"
+  }
+}

@@ -30,6 +30,20 @@ export interface CompiledArtifact {
   func?: string; // intermediate FunC source
 }
 
+export interface CompilerDiagnostic {
+  file: string;
+  line: number;
+  column: number;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+export interface CompilationResult {
+  status: 'success' | 'failure';
+  artifacts?: CompiledArtifact;
+  diagnostics: CompilerDiagnostic[];
+}
+
 export interface CanonicalState {
   projectId: string;
   eventLogHead: string; // Hash of the last committed event
