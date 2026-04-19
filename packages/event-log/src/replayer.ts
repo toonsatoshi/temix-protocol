@@ -97,6 +97,13 @@ export class Replayer {
         // For MVP, replay is the rollback mechanism.
         return state;
 
+      case 'batch':
+        let batchState = state;
+        for (const subPayload of payload.events) {
+          batchState = this.applyEvent(batchState, { ...event, payload: subPayload });
+        }
+        return batchState;
+
       default:
         return assertUnreachable(payload);
     }

@@ -1,1 +1,16 @@
-{"name": "@temix/telegram-bot", "version": "0.1.0", "main": "src/index.ts"}
+{
+  "name": "@temix/telegram-bot",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "telegraf": "^4.15.3",
+    "dotenv": "^16.4.1",
+    "@temix/pipeline": "workspace:*",
+    "@temix/types": "workspace:*",
+    "@temix/db": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.0.0"
+  }
+}

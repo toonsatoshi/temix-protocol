@@ -30,6 +30,11 @@ export class Stage5Materialization {
 
       // 3. Post-Condition Check: Verify Head Hash
       // If we just committed an event, the materialized state's head must match it.
+      console.log(`[Stage 5] State Head Hash: ${state.eventLogHead}`);
+      if (context.event) {
+        console.log(`[Stage 5] Context Event Hash: ${context.event.hash}`);
+      }
+      
       if (context.event && state.eventLogHead !== context.event.hash) {
         return {
           status: 'failure',

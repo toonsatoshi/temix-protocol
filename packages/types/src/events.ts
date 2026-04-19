@@ -39,13 +39,19 @@ export interface RollbackPayload {
   reason: string;
 }
 
+export interface BatchPayload {
+  type: 'batch';
+  events: MutationPayload[];
+}
+
 export type MutationPayload =
   | ProjectCreatePayload
   | TactDeltaPayload
   | JUSEntryPayload
   | ConflictResolutionPayload
   | DeploymentPayload
-  | RollbackPayload;
+  | RollbackPayload
+  | BatchPayload;
 
 export interface MutationEvent {
   id: string;

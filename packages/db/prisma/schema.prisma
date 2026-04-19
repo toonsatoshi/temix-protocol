@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -37,7 +37,7 @@ model MutationEvent {
   prevHash  String
   payload   Json // MutationPayload
   status    String // 'committed' | 'rejected'
-  timestamp BigInt
+  timestamp Int
   createdAt DateTime @default(now())
 
   @@index([projectId, timestamp])

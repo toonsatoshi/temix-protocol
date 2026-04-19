@@ -26,17 +26,21 @@ export class Stage4Commit {
     }
 
     try {
-      // In this MVP, we assume a resolution contains one Tact delta and one JUS entry.
-      // We'll commit them as a sequence or a combined event if supported.
-      // For simplicity and adherence to the "One source of truth" principle, 
-      // we'll use the TactDelta as the primary event for now, 
-      // or implement a Batch event if needed.
-      
-      const payload: MutationPayload = {
+      const tactPayload: MutationPayload = {
         type: 'tact_delta',
         path: context.resolution.tactDelta.path,
         delta: context.resolution.tactDelta.delta,
-        description: `AI-generated change from intent: ${context.input.content.substring(0, 50)}...`
+        description: `AI-generated Tact change for: ${context.input.content.substring(0, 50)}...`
+      };
+
+      const jusPayload: MutationPayload = {
+        type: 'jus_entry',
+        entry: context.resolution.jusEntry
+      };
+
+      const payload: MutationPayload = {
+        type: 'batch',
+        events: [tactPayload, jusPayload]
       };
 
       // Atomic Commit to the Event Log
