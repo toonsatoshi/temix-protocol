@@ -1,1 +1,16 @@
-{"name": "@temix/materializer", "version": "0.1.0", "main": "src/index.ts"}
+{
+  "name": "@temix/materializer",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@temix/types": "workspace:*",
+    "@temix/event-log": "workspace:*",
+    "@temix/tact-compiler": "workspace:*",
+    "diff-match-patch": "^1.0.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.0.0",
+    "@types/diff-match-patch": "^1.0.36"
+  }
+}

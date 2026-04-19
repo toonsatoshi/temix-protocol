@@ -1,1 +1,17 @@
-{"name": "@temix/pipeline", "version": "0.1.0", "main": "src/index.ts"}
+{
+  "name": "@temix/pipeline",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@temix/types": "workspace:*",
+    "@temix/ai-engine": "workspace:*",
+    "@temix/constraints-engine": "workspace:*",
+    "@temix/event-log": "workspace:*",
+    "@temix/materializer": "workspace:*",
+    "@temix/portal-generator": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.0.0"
+  }
+}
