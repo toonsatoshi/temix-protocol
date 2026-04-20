@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { createClient } from '@base44/sdk';
 import { 
   PipelineInput, 
   PipelineResult, 
@@ -17,6 +18,14 @@ const client = axios.create({
   },
 });
 
+export const db = createClient({
+  serverUrl: "https://portal-sync-flow.base44.app",
+  appId: "69e4caf5b64af20598be0dbf",
+  headers: { "api_key": "6cb91abc013247618da69247a4b7e68f" }
+});
+
+const entities = db.asServiceRole.entities;
+
 // Interceptor to add Telegram InitData to headers
 client.interceptors.request.use((config) => {
   const tg = (window as any).Telegram?.WebApp;
@@ -28,24 +37,50 @@ client.interceptors.request.use((config) => {
 
 export const api = {
   // Projects
-  getProjects: () => client.get<Project[]>('/projects'),
-  getProjectState: (projectId: string) => client.get<CanonicalState>(`/projects/${projectId}/state`),
+  getProjects: async () => {
+    return entities.Project.list();
+  },
+  getProjectState: async (projectId: string) => {
+    const states = await entities.CanonicalState.filter(
+      { projectId },
+      '-created_date',
+      1
+    );
+    return states[0] as CanonicalState;
+  },
   getProjectTimeline: (projectId: string) => client.get(`/projects/${projectId}/timeline`),
   getProjectManifest: (projectId: string) => client.get<PortalManifest>(`/projects/${projectId}/manifest`),
-  rollbackProject: (projectId: string, eventHash: string) => 
+  rollbackProject: (projectId: string, eventHash: string) =>
     client.post(`/projects/${projectId}/rollback`, { eventHash }),
 
   // Pipeline
-  submitPipeline: (input: PipelineInput) => 
+  submitPipeline: (input: PipelineInput) =>
     client.post<PipelineResult>('/pipeline/submit', input),
 
   // Events
-  getEvents: (projectId: string, params?: { cursor?: string; limit?: number }) => 
-    client.get<MutationEvent[]>(`/projects/${projectId}/events`, { params }),
-
+  getEvents: async (projectId: string, params?: { cursor?: string; limit?: number }) => {
+     return entities.MutationEvent.filter(
+       { projectId, status: 'committed' },
+       '-created_date',
+       params?.limit || 50
+     );
+  },
   // Deployment
   deployProject: (projectId: string) => client.post(`/projects/${projectId}/deploy`),
   instantiatePortal: (projectId: string) => client.post(`/projects/${projectId}/portal/instantiate`),
+
+  // Polling helper
+  pollProjectState: (projectId: string, callback: (state: CanonicalState) => void) => {
+    const interval = setInterval(async () => {
+      try {
+        const state = await api.getProjectState(projectId);
+        if (state) callback(state);
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }
 };
 
 export default client;

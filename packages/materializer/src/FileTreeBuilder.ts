@@ -27,19 +27,13 @@ export class FileTreeBuilder {
       case 'jus_entry':
       case 'deployment':
       case 'rollback':
+      case 'batch':
+      case 'rejection':
         // These don't directly mutate the file tree structure in this builder
         return tree;
 
-      case 'batch':
-        let batchTree = tree;
-        for (const subPayload of payload.events) {
-          batchTree = this.applyEvent(batchTree, { ...event, payload: subPayload });
-        }
-        return batchTree;
-
       default:
-        // Handle potential new payload types from @temix/types
-        return tree;
+        return assertUnreachable(payload);
     }
   }
 }

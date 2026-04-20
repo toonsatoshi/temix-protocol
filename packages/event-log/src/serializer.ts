@@ -3,40 +3,42 @@
  * 
  * Rules:
  * 1. Keys sorted lexicographically.
- * 2. Optional fields that are absent are serialized as null, not omitted.
+ * 2. Optional fields that are absent or null are OMITTED from serialization to ensure
+ *    stability against databases that might add/remove nulls.
  * 3. No floating-point values anywhere.
+ * 4. Manual string construction to ensure engine-independent determinism.
  */
 
 export function canonicalSerialize(payload: any): string {
-  return JSON.stringify(sortKeys(payload));
-}
-
-function sortKeys(obj: any): any {
-  if (obj === null) return null;
-  if (Array.isArray(obj)) {
-    return obj.map(sortKeys);
+  if (payload === null || payload === undefined) {
+    return 'null';
   }
-  if (typeof obj !== 'object') {
-    if (typeof obj === 'number' && !Number.isInteger(obj)) {
-      throw new Error(`Non-integer value detected in payload: ${obj}`);
+
+  if (Array.isArray(payload)) {
+    return '[' + payload.map(item => canonicalSerialize(item)).join(',') + ']';
+  }
+
+  if (typeof payload !== 'object') {
+    if (typeof payload === 'number' && !Number.isInteger(payload)) {
+      throw new Error(`Non-integer value detected in payload: ${payload}`);
     }
-    return obj;
+    return JSON.stringify(payload);
   }
 
   // Object case
-  const sortedObj: any = {};
-  const keys = Object.keys(obj).sort();
+  const keys = Object.keys(payload).sort();
+  const parts: string[] = [];
 
   for (const key of keys) {
-    let value = obj[key];
+    const value = payload[key];
     
-    // Rule 2: absent optional fields as null
-    if (value === undefined) {
-      value = null;
+    // Skip undefined or null to ensure stability against DB mutation
+    if (value === undefined || value === null) {
+      continue;
     }
-    
-    sortedObj[key] = sortKeys(value);
+
+    parts.push(`${JSON.stringify(key)}:${canonicalSerialize(value)}`);
   }
 
-  return sortedObj;
+  return '{' + parts.join(',') + '}';
 }

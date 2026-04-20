@@ -1,0 +1,24 @@
+
+> @temix/telegram-bot@0.1.0 dev
+> ts-node -r tsconfig-paths/register src/index.ts
+
+◇ injected env (3) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Environment variables loaded from .env
+Starting bot in long-polling mode...
+Failed to launch bot: TelegramError: 409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+    at Telegram.callApi (/data/data/com.termux/files/home/Temix/temix-protocol/node_modules/telegraf/lib/core/network/client.js:315:19)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Polling.[Symbol.asyncIterator] (/data/data/com.termux/files/home/Temix/temix-protocol/node_modules/telegraf/lib/core/network/polling.js:30:33)
+    at async Polling.loop (/data/data/com.termux/files/home/Temix/temix-protocol/node_modules/telegraf/lib/core/network/polling.js:73:30)
+    at async Telegraf.launch (/data/data/com.termux/files/home/Temix/temix-protocol/node_modules/telegraf/lib/telegraf.js:194:13)
+    at async launchBot (/data/data/com.termux/files/home/Temix/temix-protocol/apps/telegram-bot/src/bot.ts:40:5) {
+  response: {
+    ok: false,
+    error_code: 409,
+    description: 'Conflict: terminated by other getUpdates request; make sure that only one bot instance is running'
+  },
+  on: {
+    method: 'getUpdates',
+    payload: { timeout: 50, offset: 473772540, allowed_updates: [] }
+  }
+}

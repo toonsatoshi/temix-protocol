@@ -5,6 +5,7 @@ const TACT_TYPE_WIDTHS: Record<string, number> = {
   'coins': 124,
   'uint64': 64,
   'uint32': 32,
+  'int': 257,
   'Address': 267,
   'Bool': 1,
 };

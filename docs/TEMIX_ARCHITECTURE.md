@@ -27,8 +27,9 @@ temix-protocol/
 │   └── portal-runtime/         ← Managed Portal Bot hosting runtime
 ├── packages/
 │   ├── types/                  ← Canonical shared TypeScript types
-│   ├── db/                     ← Prisma database layer
-│   ├── event-log/              ← Hash-linked append-only event log
+│   ├── db/                     # Base44 SDK database layer
+│   ├── event-log/              # Hash-linked append-only event log
+
 │   ├── pipeline/               ← Six-Stage Deterministic Pipeline
 │   ├── ai-engine/              ← Hybrid AI Engine (DeepSeek)
 │   ├── constraints-engine/     ← Semantic Constraints Engine
@@ -164,20 +165,18 @@ packages/db/
 ├── src/
 │   ├── index.ts
 │   └── client.ts
-├── prisma/
-│   └── schema.prisma
 ├── package.json
 └── tsconfig.json
 ```
 
-**`prisma/schema.prisma`**
-The database schema for the entire system. Models: `User` (Telegram user id, Stars balance, created_at), `Project` (id, owner, name, status, current_canonical_state_hash), `MutationEvent` (id, project_id, hash, prev_hash, timestamp, payload as JSON, status), `DeploymentRecord` (id, project_id, contract_address, tx_hash, network, stars_spent), `PortalBot` (id, project_id, token, webhook_url, is_managed, uptime_status). The `MutationEvent` model is the persistence layer for the event log — each record is one immutable row.
+**`package.json`**
+The package manifest for the database layer. Declares the `@base44/sdk` dependency.
 
 **`src/client.ts`**
-Exports a singleton Prisma client instance. Handles connection pooling configuration. This is the only file in the entire codebase that instantiates `PrismaClient`. All other packages import this singleton via `@temix/db`.
+Exports a singleton Base44 SDK client instance.
 
 **`src/index.ts`**
-Re-exports the Prisma client and selected Prisma-generated types (e.g. `Prisma.MutationEventCreateInput`) that are useful across packages without requiring a direct Prisma dependency.
+Re-exports the Base44 client and selected typed wrappers for entities (e.g. `MutationEvent`, `Project`) that are useful across packages.
 
 ---
 
@@ -787,7 +786,7 @@ Developer types "Add a Transfer button" in Telegram
                         └─► packages/pipeline/src/stages/Stage4Commit.ts
                               │  calls packages/event-log/src/EventLog.ts
                               │  event appended to hash-linked log
-                              │  persisted to packages/db (Prisma)
+                              │  persisted to packages/db (Base44)
                               │
                               └─► packages/pipeline/src/stages/Stage5Materialization.ts
                                     │  calls packages/materializer/src/Materializer.ts

@@ -343,9 +343,9 @@ These are the specific failure modes you will encounter. They are listed because
 
 Turborepo caches build outputs based on input file hashes. This is fast and usually correct. The exception: when you change a type in `packages/types`, Turborepo may not correctly detect that downstream packages need to rebuild if their source files didn't change — only their type inputs changed. If you are seeing type errors in a package that you haven't touched, run `turbo build --force` to bypass the cache. Do not waste time debugging stale cache artifacts. Force-rebuild when type errors appear in packages you haven't modified.
 
-### Challenge 2: Prisma Type Generation in Monorepo Context
+### Challenge 2: Base44 SDK Integration
+The system uses the Base44 SDK for its persistence layer. Each entity (MutationEvent, Project, User) is accessed through typed wrappers exported from `@temix/db`. This ensures type safety across the monorepo without the need for a complex local generation step.
 
-Prisma generates TypeScript types from `schema.prisma` into `packages/db/node_modules/.prisma/client`. In a pnpm monorepo with symlinked `node_modules`, other packages importing from `@temix/db` may not find these generated types correctly if `prisma generate` hasn't been run after schema changes. Add `prisma generate` as a `postinstall` script in `packages/db/package.json`. Run it explicitly in the Turborepo `build` task for `packages/db`. Never assume generated Prisma types are current without running `prisma generate`.
 
 ### Challenge 3: DeepSeek JSON Mode Reliability
 

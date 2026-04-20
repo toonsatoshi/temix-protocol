@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "main": "src/index.ts",
   "dependencies": {
-    "@prisma/client": "^5.12.1"
+    "better-sqlite3": "^11.0.0"
   },
   "devDependencies": {
-    "prisma": "^5.12.1"
+    "@types/better-sqlite3": "^7.6.10"
   }
 }

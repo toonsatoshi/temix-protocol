@@ -11,7 +11,7 @@ export class AIParser {
         throw new Error('Raw response is not a valid object');
       }
 
-      // Check for required fields
+      // Check for required fields and explicitly not partial
       if (raw.tactDelta && raw.jusEntry && !raw.isPartial) {
         return {
           tactDelta: raw.tactDelta,
@@ -20,9 +20,14 @@ export class AIParser {
       }
 
       // Partial or fallback
+      const jusEntry = raw.jusEntry || {};
       return {
         tactDelta: raw.tactDelta,
-        partialJusEntry: raw.jusEntry || { unresolvedFields: ['all'], reason: 'Malformed response' },
+        partialJusEntry: {
+          ...jusEntry,
+          unresolvedFields: jusEntry.unresolvedFields || ['all'],
+          reason: jusEntry.reason || (raw.isPartial ? 'AI requested audit' : 'Malformed response'),
+        },
       } as PartialResolution;
     } catch (error: any) {
       return {

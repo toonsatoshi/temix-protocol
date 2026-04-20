@@ -1,8 +1,10 @@
 import { Telegraf } from 'telegraf';
 import * as dotenv from 'dotenv';
 import { messageHandler } from './handlers/message';
+import { callbackHandler } from './handlers/callback';
 
-dotenv.config(); // Looks for .env in process.cwd()
+dotenv.config({ override: true }); 
+console.log('Environment variables loaded from .env');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -11,10 +13,30 @@ if (!token) {
 
 export const bot = new Telegraf(token);
 
-// Middleware for logging/auth could go here
+// Middleware for logging/auth
+bot.use(async (ctx, next) => {
+  const start = Date.now();
+  const updateType = ctx.updateType;
+  const from = ctx.from ? `@${ctx.from.username || ctx.from.id}` : 'unknown';
+  
+  let detail = '';
+  if (ctx.message && 'text' in ctx.message) {
+    detail = `: "${ctx.message.text}"`;
+  } else if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+    detail = `: (callback) "${ctx.callbackQuery.data}"`;
+  }
+
+  console.log(`[BOT] Incoming ${updateType} from ${from}${detail} (ID: ${ctx.update.update_id})`);
+  
+  await next();
+  
+  const ms = Date.now() - start;
+  console.log(`[BOT] Handled ${updateType} in ${ms}ms`);
+});
 
 // Register handlers
 bot.on('text', messageHandler);
+bot.on('callback_query', callbackHandler);
 
 // Command examples
 bot.start((ctx) => ctx.reply('Welcome to Temix Protocol. Send me your intent to begin.'));
@@ -33,8 +55,9 @@ export async function launchBot() {
       },
     });
   } else {
-    console.log('Starting bot in long-polling mode');
+    console.log('Starting bot in long-polling mode...');
     await bot.launch();
+    console.log('Bot is ready and listening for messages.');
   }
 
   // Enable graceful stop

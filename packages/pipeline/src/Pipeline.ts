@@ -5,24 +5,12 @@ import {
   CanonicalState 
 } from '@temix/types';
 import { PipelineContextImpl } from './PipelineContext';
+import { Stage1Submission } from './stages/Stage1Submission';
 import { Stage2Resolution } from './stages/Stage2Resolution';
+import { Stage3Validation } from './stages/Stage3Validation';
 import { Stage4Commit } from './stages/Stage4Commit';
 import { Stage5Materialization } from './stages/Stage5Materialization';
 import { Stage6Exposure } from './stages/Stage6Exposure';
-
-// Placeholder stages for MVP structure
-class Stage1Submission {
-  async execute(context: PipelineContext) {
-    context.status = 'processing';
-    return { status: 'success' };
-  }
-}
-
-class Stage3Validation {
-  async execute(context: PipelineContext) {
-    return { status: 'success' };
-  }
-}
 
 export class Pipeline {
   private stage1 = new Stage1Submission();
@@ -57,14 +45,18 @@ export class Pipeline {
       const s2 = await this.stage2.execute(context, projectContext);
       if (s2.status === 'branch') {
         context.status = 'awaiting_audit';
-        return { status: 'awaiting_audit', auditSessionId: context.id };
+        return { 
+          status: 'awaiting_audit', 
+          auditSessionId: context.id,
+          partialResolution: s2.output as any
+        };
       }
       if (s2.status !== 'success') return this.handleRejection(s2);
       context.resolution = s2.output;
 
       // Stage 3: Validation
       if (onStageComplete) onStageComplete('Stage 3');
-      const s3 = await this.stage3.execute(context);
+      const s3 = await this.stage3.execute(context, projectContext);
       if (s3.status !== 'success') return this.handleRejection(s3);
 
       // Stage 4: Commit

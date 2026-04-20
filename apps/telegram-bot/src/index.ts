@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { launchBot } from './bot';
 
 launchBot().catch((err) => {

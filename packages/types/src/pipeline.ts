@@ -44,7 +44,7 @@ export interface ResolutionAuditRequest {
 export type PipelineResult =
   | { status: 'committed'; event: MutationEvent }
   | { status: 'rejected'; issueCard: IssueCard }
-  | { status: 'awaiting_audit'; auditSessionId: string };
+  | { status: 'awaiting_audit'; auditSessionId: string; partialResolution: PartialResolution };
 
 export interface StageResult<T> {
   status: 'success' | 'failure' | 'branch';

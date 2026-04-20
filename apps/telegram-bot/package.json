@@ -2,6 +2,10 @@
   "name": "@temix/telegram-bot",
   "version": "0.1.0",
   "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node -r tsconfig-paths/register src/index.ts",
+    "build": "tsc"
+  },
   "dependencies": {
     "telegraf": "^4.15.3",
     "dotenv": "^16.4.1",

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@temix/types": ["../packages/types/src/index.ts"],
+      "@temix/db": ["../packages/db/src/index.ts"],
+      "@temix/event-log": ["../packages/event-log/src/index.ts"],
+      "@temix/pipeline": ["../packages/pipeline/src/index.ts"],
+      "@temix/ai-engine": ["../packages/ai-engine/src/index.ts"],
+      "@temix/constraints-engine": ["../packages/constraints-engine/src/index.ts"],
+      "@temix/jus": ["../packages/jus/src/index.ts"],
+      "@temix/materializer": ["../packages/materializer/src/index.ts"],
+      "@temix/tact-compiler": ["../packages/tact-compiler/src/index.ts"],
+      "@temix/sandbox": ["../packages/sandbox/src/index.ts"],
+      "@temix/portal-generator": ["../packages/portal-generator/src/index.ts"]
+    }
+  }
+}

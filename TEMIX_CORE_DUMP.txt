@@ -1,0 +1,41 @@
+--- TEMIX CORE DUMP ---
+
+
+FILE: ./packages/pipeline/src/Pipeline.ts
+====================
+
+
+FILE: ./packages/pipeline/src/stages/Stage1Submission.ts
+====================
+
+
+FILE: ./packages/pipeline/src/stages/Stage2Resolution.ts
+====================
+
+
+FILE: ./packages/pipeline/src/stages/Stage4Commit.ts
+====================
+
+
+FILE: ./packages/pipeline/src/stages/Stage5Materialization.ts
+====================
+
+
+FILE: ./packages/materializer/src/Materializer.ts
+====================
+
+
+FILE: ./packages/ai-engine/src/prompts/tactDelta.ts
+====================
+
+
+FILE: ./packages/constraints-engine/src/deterministic/index.ts
+====================
+
+
+FILE: ./apps/telegram-bot/src/bot.ts
+====================
+
+
+FILE: ./packages/portal-generator/src/ManifestBuilder.ts
+====================

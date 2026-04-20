@@ -44,6 +44,12 @@ export interface BatchPayload {
   events: MutationPayload[];
 }
 
+export interface RejectionPayload {
+  type: 'rejection';
+  originalPayload: any;
+  reason: string;
+}
+
 export type MutationPayload =
   | ProjectCreatePayload
   | TactDeltaPayload
@@ -51,7 +57,8 @@ export type MutationPayload =
   | ConflictResolutionPayload
   | DeploymentPayload
   | RollbackPayload
-  | BatchPayload;
+  | BatchPayload
+  | RejectionPayload;
 
 export interface MutationEvent {
   id: string;

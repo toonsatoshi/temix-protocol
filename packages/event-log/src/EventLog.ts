@@ -1,5 +1,5 @@
-import { prisma } from '@temix/db';
-import { MutationEvent, MutationPayload } from '@temix/types';
+import { entities } from '@temix/db';
+import { MutationEvent, MutationPayload, RejectionPayload } from '@temix/types';
 import { MutationEventBuilder } from './MutationEvent';
 
 export class EventLog {
@@ -16,16 +16,14 @@ export class EventLog {
 
     const event = MutationEventBuilder.build(projectId, payload, prevHash);
 
-    const record = await prisma.mutationEvent.create({
-      data: {
-        id: event.id,
-        projectId: event.projectId,
-        hash: event.hash,
-        prevHash: event.prevHash,
-        payload: event.payload as any,
-        status: 'committed',
-        timestamp: event.timestamp,
-      },
+    const record = await entities.MutationEvent.create({
+      id: event.id,
+      projectId: event.projectId,
+      hash: event.hash,
+      prevHash: event.prevHash,
+      payload: event.payload,
+      status: 'committed',
+      timestamp: event.timestamp,
     });
 
     return this.mapRecordToEvent(record);
@@ -39,15 +37,19 @@ export class EventLog {
     payload: MutationPayload,
     reason: string
   ): Promise<void> {
-    await prisma.mutationEvent.create({
-      data: {
-        projectId,
-        hash: `rejected-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        prevHash: 'none',
-        payload: { ...payload, rejectionReason: reason } as any,
-        status: 'rejected',
-        timestamp: Date.now(),
-      },
+    const rejection: RejectionPayload = {
+      type: 'rejection',
+      originalPayload: payload,
+      reason
+    };
+    
+    await entities.MutationEvent.create({
+      projectId,
+      hash: `rejected-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      prevHash: 'none',
+      payload: rejection,
+      status: 'rejected',
+      timestamp: Date.now(),
     });
   }
 
@@ -55,22 +57,23 @@ export class EventLog {
    * Retrieves the most recent committed event for a project.
    */
   static async getHead(projectId: string): Promise<MutationEvent | null> {
-    const record = await prisma.mutationEvent.findFirst({
-      where: { projectId, status: 'committed' },
-      orderBy: { timestamp: 'desc' },
-    });
+    const records = await entities.MutationEvent.filter(
+      { projectId, status: 'committed' },
+      '-created_date',
+      1
+    );
 
-    return record ? this.mapRecordToEvent(record) : null;
+    return records.length > 0 ? this.mapRecordToEvent(records[0]) : null;
   }
 
   /**
    * Streams all committed events for a project in chronological order.
    */
   static async *replay(projectId: string): AsyncIterable<MutationEvent> {
-    const records = await prisma.mutationEvent.findMany({
-      where: { projectId, status: 'committed' },
-      orderBy: { timestamp: 'asc' },
-    });
+    const records = await entities.MutationEvent.filter(
+      { projectId, status: 'committed' },
+      'created_date'
+    );
 
     for (const record of records) {
       yield this.mapRecordToEvent(record);
