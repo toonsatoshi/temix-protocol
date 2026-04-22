@@ -79,6 +79,32 @@ describe('EventLog / MutationEvent / Serializer', () => {
     await expect(Replayer.replay('proj1', eventStream())).rejects.toThrow('Hash chain divergence');
   });
 
+  // Scenario 7: Batch payloads are expanded and applied in-order
+  test('Scenario 7: Batch Payload Application', () => {
+    const event = MutationEventBuilder.build('proj1', {
+      type: 'batch',
+      events: [
+        { type: 'tact_delta', path: 'main.tact', delta: 'v2' },
+        { type: 'tact_delta', path: 'lib.tact', delta: 'helper' },
+      ],
+    });
+
+    const initialState: CanonicalState = {
+      projectId: 'proj1',
+      eventLogHead: 'genesis',
+      fileTree: [],
+      artifacts: null,
+      jus: { entries: {} },
+      deploymentRecords: [],
+    };
+
+    const nextState = Replayer.applyEvent(initialState, event);
+    expect(nextState.fileTree).toEqual([
+      { path: 'main.tact', content: 'v2', hash: event.hash },
+      { path: 'lib.tact', content: 'helper', hash: event.hash },
+    ]);
+  });
+
   // Rule 3: No floating-point values
   test('Rule 3: Float Detection', () => {
     const payload = { type: 'tact_delta', value: 1.5 };
