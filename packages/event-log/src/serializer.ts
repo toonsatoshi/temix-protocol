@@ -3,8 +3,7 @@
  * 
  * Rules:
  * 1. Keys sorted lexicographically.
- * 2. Optional fields that are absent or null are OMITTED from serialization to ensure
- *    stability against databases that might add/remove nulls.
+ * 2. Optional fields that are absent/undefined are serialized as null.
  * 3. No floating-point values anywhere.
  * 4. Manual string construction to ensure engine-independent determinism.
  */
@@ -32,12 +31,8 @@ export function canonicalSerialize(payload: any): string {
   for (const key of keys) {
     const value = payload[key];
     
-    // Skip undefined or null to ensure stability against DB mutation
-    if (value === undefined || value === null) {
-      continue;
-    }
-
-    parts.push(`${JSON.stringify(key)}:${canonicalSerialize(value)}`);
+    const normalizedValue = value === undefined ? null : value;
+    parts.push(`${JSON.stringify(key)}:${canonicalSerialize(normalizedValue)}`);
   }
 
   return '{' + parts.join(',') + '}';

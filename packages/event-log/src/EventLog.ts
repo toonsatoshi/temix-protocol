@@ -1,6 +1,7 @@
 import { entities } from '@temix/db';
 import { MutationEvent, MutationPayload, RejectionPayload } from '@temix/types';
 import { MutationEventBuilder } from './MutationEvent';
+import { v4 as uuidv4 } from 'uuid';
 
 export class EventLog {
   /**
@@ -44,6 +45,7 @@ export class EventLog {
     };
     
     await entities.MutationEvent.create({
+      id: uuidv4(),
       projectId,
       hash: `rejected-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       prevHash: 'none',
